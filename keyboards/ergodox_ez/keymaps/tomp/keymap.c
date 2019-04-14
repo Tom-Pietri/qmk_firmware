@@ -1,5 +1,7 @@
 #include QMK_KEYBOARD_H
 #include "version.h"
+#include "unicode_key.h"
+#include "config.h"
 
 #define BASE 0 // default layer
 #define SYMB 1 // symbols
@@ -9,6 +11,115 @@ enum custom_keycodes {
   EPRM = SAFE_RANGE,
   VRSN,
   RGB_SLD
+};
+
+enum {
+  TD_A,
+  TD_C,
+  TD_E,
+  TD_O,
+  TD_U
+};
+
+
+void a_tapdance (qk_tap_dance_state_t *state, void *user_data) { 
+  switch (state->count)
+  {
+    case 2:
+      unicode_input_start();
+      register_hex(A_AIGU_HEX);
+      unicode_input_finish();
+      break;
+  
+    default:
+        register_code(KC_A);
+        unregister_code(KC_A);
+      break;
+  }
+}
+
+void c_tapdance (qk_tap_dance_state_t *state, void *user_data) { 
+  switch (state->count)
+  {
+    case 2:
+      unicode_input_start();
+      register_hex(C_CEDILLE_HEX);
+      unicode_input_finish();
+      break;
+  
+    default:
+        register_code(KC_C);
+        unregister_code(KC_C);
+      break;
+  }
+}
+
+void e_tapdance (qk_tap_dance_state_t *state, void *user_data) { 
+  switch (state->count)
+  {
+    case 2:
+      unicode_input_start();
+      register_hex(E_AIGU_HEX);
+      unicode_input_finish();
+      break;
+    case 3:
+      unicode_input_start();
+      register_hex(E_GRAVE_HEX);
+      unicode_input_finish();
+      break;
+    case 4:
+      unicode_input_start();
+      register_hex(E_CIRCONFLEX_HEX);
+      unicode_input_finish();
+      break;
+  
+    default:
+        register_code(KC_E);
+        unregister_code(KC_E);
+      break;
+  }
+}
+
+void o_tapdance (qk_tap_dance_state_t *state, void *user_data) { 
+  switch (state->count)
+  {
+    case 2:
+      unicode_input_start();
+      register_hex(O_CIRCONFLEX_HEX);
+      unicode_input_finish();
+      break;
+  
+    default:
+        register_code(KC_O);
+        unregister_code(KC_O);
+      break;
+  }
+}
+
+void u_tapdance (qk_tap_dance_state_t *state, void *user_data) { 
+  switch (state->count)
+  {
+    case 2:
+      unicode_input_start();
+      register_hex(U_GRAVE_HEX);
+      unicode_input_finish();
+      break;
+  
+    default:
+        register_code(KC_U);
+        unregister_code(KC_U);
+      break;
+  }
+}
+
+
+qk_tap_dance_action_t tap_dance_actions[] = {
+  [TD_A]  = ACTION_TAP_DANCE_FN(a_tapdance),
+  [TD_C]  = ACTION_TAP_DANCE_FN(c_tapdance),
+  [TD_E]  = ACTION_TAP_DANCE_FN(e_tapdance),
+  [TD_O]  = ACTION_TAP_DANCE_FN(o_tapdance),
+  [TD_U]  = ACTION_TAP_DANCE_FN(u_tapdance)
+  // Other declarations would go here, separated by commas, if you have them
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -36,22 +147,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [BASE] = LAYOUT_ergodox(
   // left hand
   KC_ESCAPE,          KC_1,        KC_2,          KC_3,    KC_4,    KC_5,    KC_QUOTE,
-  KC_TAB,         KC_A,        KC_Z,          KC_E,    KC_R,    KC_T,    TG(SYMB),
+  KC_TAB,         TD(TD_A),        KC_Z,          TD(TD_E),    KC_R,    KC_T,    TG(SYMB),
   KC_DELETE,         KC_Q,        KC_S,          KC_D,    KC_F,    KC_G,
-  KC_LSFT,         KC_W, KC_X,          KC_C,    KC_V,    KC_B,    KC_HOME,
+  KC_LSFT,         KC_W, KC_X,          TD(TD_C),    KC_V,    KC_B,    KC_HOME,
   KC_LCTRL, KC_LALT,     KC_LGUI, KC_TRNS, MO(SYMB),
                                                            KC_LBRACKET, KC_RBRACKET,
-                                                                          KC_HOME,
-                                                         KC_NO, KC_BSPC, KC_END,
+                                                                          MO(MDIA),
+                                                         KC_SPACE, KC_BSPC, KC_LSHIFT,
   // right hand
   KC_GRAVE,      KC_6,    KC_7,    KC_8,    KC_9,              KC_0,           KC_BSPACE,
-  TG(SYMB),     KC_Y,    KC_U,    KC_I,    KC_O,              KC_P,           KC_TRNS,
+  TG(SYMB),     KC_Y,    TD(TD_U),    KC_I,    TD(TD_O),              KC_P,           KC_TRNS,
   KC_H,         KC_J,    KC_K,    KC_L,    KC_M, KC_ENTER,
   KC_END, KC_N,    KC_SCLN,    KC_COMM, KC_DOT,            KC_SLSH, KC_RSFT,
   KC_UP,        KC_DOWN, KC_LEFT, KC_RIGHT, KC_TRNS,
   KC_TRNS, KC_LCTRL,
   KC_PGUP,
-  KC_PGDN, KC_TAB, KC_ENT
+  KC_PGDN, KC_TAB, KC_SPACE
 ),
 /* Keymap 1: Symbol Layer
  *
@@ -158,7 +269,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 // Runs just one time when the keyboard initializes.
 void matrix_init_user(void) {
-#ifdef RGBLIGHT_COLOR_LAYER_0
+  set_unicode_input_mode(UC_LNX);
+  #ifdef RGBLIGHT_COLOR_LAYER_0
   rgblight_setrgb(RGBLIGHT_COLOR_LAYER_0);
 #endif
 };
